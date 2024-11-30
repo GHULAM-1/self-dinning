@@ -1,21 +1,10 @@
 import { Router } from "express";
+import { createOwner ,getOwnerById, getAllOwners } from "../controllers/owner-controllers";
 
 const router = Router();
 
-// Example: GET /owner
-router.get("/", (req, res) => {
-  res.send("Get all owners");
-});
-
-// Example: POST /owner
-router.post("/", (req, res) => {
-  res.send("Create a new owner");
-});
-
-// Example: GET /owner/:id
-router.get("/:id", (req, res) => {
-  const { id } = req.params;
-  res.send(`Get details of owner with ID: ${id}`);
-});
+router.post("/", createOwner);
+router.get("/:id", getOwnerById); // Route to get a single owner by ID
+router.get("/", getAllOwners); // Route to get all owners
 
 export default router;

@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const databaseConnection = async (): Promise<void> => {
-  const mongoURI = process.env.MONGO_URI; // Fetch from .env
+  const mongoURI = process.env.MONGO_URI; 
   if (!mongoURI) {
     throw new Error("⚠️ MongoDB URI not provided in .env file.");
   }
