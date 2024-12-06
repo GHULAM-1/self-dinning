@@ -1,4 +1,4 @@
-import { createOrder, getOrders } from "../controllers/order-controller";
+import { createOrder, deleteOrder, getOrderById, getOrders, updateOrder } from "../controllers/order-controller";
 import { Router } from "express";
 
 const router = Router();
@@ -10,9 +10,12 @@ router.get("/", getOrders);
 router.post("/", createOrder);
 
 // Example: GET /order/:id
-router.get("/:id", (req, res) => {
-  const { id } = req.params;
-  res.send(`Get details of order with ID: ${id}`);
-});
+router.get("/:id", getOrderById);
+
+// Example: PATCH /order/:id
+router.patch("/:id", updateOrder);
+
+// Example: DELETE /order/:id
+router.delete("/:id", deleteOrder);
 
 export default router;

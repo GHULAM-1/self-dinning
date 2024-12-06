@@ -1,21 +1,19 @@
+import { createCustomer, deleteCustomer, getAllCustomers, getCustomerById, updateCustomer } from "../controllers/customer-controllers";
 import { Router } from "express";
 
 const router = Router();
 
 // Example: GET /customer
-router.get("/", (req, res) => {
-  res.send("Get all customers");
-});
+router.get("/", getAllCustomers);
 
 // Example: POST /customer
-router.post("/", (req, res) => {
-  res.send("Create a new customer");
-});
+router.post("/", createCustomer);
 
 // Example: GET /customer/:id
-router.get("/:id", (req, res) => {
-  const { id } = req.params;
-  res.send(`Get details of customer with ID: ${id}`);
-});
+router.get("/:id", getCustomerById);
+
+router.patch("/:id", updateCustomer);
+
+router.delete("/:id", deleteCustomer);
 
 export default router;

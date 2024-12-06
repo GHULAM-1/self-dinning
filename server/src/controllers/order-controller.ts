@@ -49,8 +49,6 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-
-
 export const getOrderById = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
@@ -65,5 +63,57 @@ export const getOrderById = async (req: Request, res: Response): Promise<void> =
     res.status(200).json(order);
   } catch (error) {
     res.status(500).json({ error: "Error fetching order" });
+  }
+};
+
+export const updateOrder = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const updates: Partial<OrderT> = req.body;
+
+  try {
+    // Prevent updating certain fields
+    delete updates.orderDate;
+
+    // Recalculate total price if items are updated
+    if (updates.items) {
+      updates.totalOrderPrice = updates.items.reduce((total: number, item: any) => {
+        return total + (item.totalPrice || 0);
+      }, 0);
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(id, updates, {
+      new: true, 
+      runValidators: true,
+    });
+
+    if (!updatedOrder) {
+      res.status(404).json({ error: "Order not found" });
+      return;
+    }
+
+    res.status(200).json(updatedOrder);
+  } catch (error) {
+    res.status(500).json({ error: "Error updating order" });
+  }
+};
+
+
+export const deleteOrder = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+
+  try {
+    const deletedOrder: OrderT | null = await Order.findByIdAndDelete(id);
+
+    if (!deletedOrder) {
+      res.status(404).json({ error: "Order not found" });
+      return;
+    }
+
+    res.status(200).json({ 
+      message: "Order deleted successfully", 
+      deletedOrder 
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Error deleting order" });
   }
 };
