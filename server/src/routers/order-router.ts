@@ -1,16 +1,13 @@
+import { createOrder, getOrders } from "../controllers/order-controller";
 import { Router } from "express";
 
 const router = Router();
 
 // Example: GET /order
-router.get("/", (req, res) => {
-  res.send("Get all orders");
-});
+router.get("/", getOrders);
 
 // Example: POST /order
-router.post("/", (req, res) => {
-  res.send("Create a new order");
-});
+router.post("/", createOrder);
 
 // Example: GET /order/:id
 router.get("/:id", (req, res) => {
