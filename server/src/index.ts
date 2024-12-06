@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import cors from "cors"; // Import the cors package
 import databaseConnection from "./utils/database-connection";
 import ownerRoutes from "./routers/owner-router";
 import customerRoutes from "./routers/customer-router";
@@ -7,6 +8,9 @@ import orderRoutes from "./routers/order-router";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+
+// Enable CORS for all routes
+app.use(cors());  // This will allow all origins by default
 
 // Connect to MongoDB
 databaseConnection()
