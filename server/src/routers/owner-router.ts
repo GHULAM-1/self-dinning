@@ -1,10 +1,14 @@
 import { Router } from "express";
-import { createOwner ,getOwnerById, getAllOwners } from "../controllers/owner-controllers";
+import { createOwner ,getOwnerById, getAllOwners , deleteOwner, updateOwner } from "../controllers/owner-controllers";
 
 const router = Router();
 
 router.post("/", createOwner);
-router.get("/:id", getOwnerById); // Route to get a single owner by ID
-router.get("/", getAllOwners); // Route to get all owners
+router.get("/:id", getOwnerById); 
+router.get("/", getAllOwners);
+router.delete("/:id", deleteOwner); 
+router.patch("/:id", updateOwner);
+
+
 
 export default router;

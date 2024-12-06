@@ -8,7 +8,9 @@ import cors from "cors";
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Connect to MongoDB
+
+app.use(cors());  
+
 databaseConnection()
   .then(() => {
     console.log("🚀 MongoDB connection established.");
@@ -19,9 +21,9 @@ databaseConnection()
   });
 
   const corsOptions = {
-    origin: "http://localhost:3000",  // Replace with your frontend URL (can be a list of allowed origins)
-    methods: "GET,POST,PUT,DELETE",  // Specify the allowed HTTP methods
-    allowedHeaders: "Content-Type, Authorization", // Allowed headers
+    origin: "http://localhost:3000", 
+    methods: "GET,POST,PUT,DELETE", 
+    allowedHeaders: "Content-Type, Authorization",
   };
   
   app.use(cors(corsOptions));
