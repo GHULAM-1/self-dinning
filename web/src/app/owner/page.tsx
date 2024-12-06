@@ -1,75 +1,70 @@
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
-import { useState } from 'react';
+'use client'
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { ownerT } from "@/types/owner-types";
 
-// Define the type for the form data
-interface FormData {
-  name: string;
-  email: string;
-}
+const queryClient = new QueryClient();
 
-// Function to make the POST request
-const postData = async (data: FormData) => {
-  const response = await axios.post('https://api.example.com/data', data);
-  return response.data; // Return the response data from the server
-};
-
-function MyComponent() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-
-  // Use the useMutation hook with TypeScript types
-  const mutation = useMutation<any, Error, FormData>(postData, {
-    onSuccess: (data) => {
-      console.log('Data successfully submitted:', data);
-    },
-    onError: (error) => {
-      console.error('Error submitting data:', error);
-    },
-  });
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    const formData: FormData = {
-      name,
-      email,
-    };
-
-    mutation.mutate(formData);
-  };
-
+export default function App() {
   return (
-    <div>
-      <h1>Submit Data</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Name:
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </label>
-        <br />
-        <label>
-          Email:
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </label>
-        <br />
-        <button type="submit">Submit</button>
-      </form>
-
-      {/* Display loading, error, or success messages */}
-      {mutation.isLoading && <p>Submitting...</p>}
-      {mutation.isError && <p style={{ color: 'red' }}>Error: {mutation.error.message}</p>}
-      {mutation.isSuccess && <p>Data submitted successfully!</p>}
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <OwnersPage />
+    </QueryClientProvider>
   );
 }
 
-export default MyComponent;
+function OwnersPage() {
+  // Fetch owners from the backend
+  const { isLoading, error, data } = useQuery({
+    queryKey: ["ownerData"],
+    queryFn: async (): Promise<ownerT[]> => {
+      const response = await axios.get("http://localhost:4000/owner");
+      return response.data;
+    },
+  });
+
+  if (isLoading) return "Loading...";
+
+  if (error instanceof Error) return "An error has occurred: " + error.message;
+
+  return (
+    <div>
+      <h1>Owners List</h1>
+      <ul>
+        {data?.map((owner) => (
+          <li key={owner.ownerCnic}>
+            <h2>{owner.businessName}</h2>
+            <p>Owner Name: {owner.ownerName}</p>
+            <p>Business Address: {owner.businessAddress}</p>
+            <p>Business Number: {owner.businessNumber}</p>
+            <p>Subscription Plan: {owner.subscription.subscriptionPlan || "N/A"}</p>
+            <ul>
+              {owner.menus.map((menu, menuIndex) => (
+                <li key={menuIndex}>
+                  <h3>Menu Categories:</h3>
+                  <ul>
+                    {menu.categories.map((category, catIndex) => (
+                      <li key={catIndex}>
+                        <p>Category Name: {category.categoryName}</p>
+                        <p>Category Discount: {category.categoryDiscount || "None"}</p>
+                        <ul>
+                          {category.items.map((item, itemIndex) => (
+                            <li key={itemIndex}>
+                              <p>Item Name: {item.itemName}</p>
+                              <p>Item Price: {item.itemPrice}</p>
+                              <p>Item Discount: {item.itemDiscount || "None"}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}

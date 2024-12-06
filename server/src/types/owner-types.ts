@@ -39,9 +39,10 @@ export type OwnerReview = {
   reviewText?: string;
   reviewRating?: number;
   reviewDate: Date;
-};
+} 
 
 export type ownerT = {
+  _id:Types.ObjectId
   ownerName: string;
   ownerCnic: number;
   businessImage: string;
