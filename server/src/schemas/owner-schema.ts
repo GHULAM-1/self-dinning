@@ -10,40 +10,6 @@ const OwnerSchema: Schema = new Schema({
     type: Number,
     required: true,
   },
-  businessImage: {
-    type: String,
-    required: true,
-  },
-  businessName: {
-    type: String,
-    required: true,
-  },
-  businessAddress: {
-    type: String,
-    required: true,
-  },
-  businessNumber: {
-    type: String,
-    required: true,
-  },
-  ownerOrders: [
-    {
-      type: Types.ObjectId,
-      ref: "Order",
-    },
-  ],
-  isClosed: {
-    type: Boolean,
-    default: false,
-  },
-  openingTime: {
-    type: Date,
-    required: true,
-  },
-  closingTime: {
-    type: Date,
-    required: true,
-  },
   acounts: [
     {
       accountName: {
@@ -74,74 +40,106 @@ const OwnerSchema: Schema = new Schema({
       required: true,
     },
   },
-  menus: [
+  restaurants: [
     {
-      categories: [
+      restaurantName: {
+        type: String,
+        required: true,
+      },
+      restaurantImage: {
+        type: String,
+        required: true,
+      },
+      restaurantAddress: {
+        type: String,
+        required: true,
+      },
+      restaurantDetails: {
+        type: String,
+        required: true,
+      },
+      restaurantOrders: [
         {
-          categoryName: {
-            type: String,
-            required: true,
-          },
-          categoryImage: {
-            type: String,
-            required: true,
-          },
-          isDisabledCategory: {
-            type: Boolean,
-            default: false,
-          },
-          categoryDiscount: {
-            type: Number,
-          },
-          items: [
-            {
-              itemName: {
-                type: String,
-                required: true,
-              },
-              itemImage: {
-                type: String,
-                required: true,
-              },
-              itemPrice: {
-                type: Number,
-                required: true,
-              },
-              itemDesc: {
-                type: String,
-                required: true,
-              },
-              label: {
-                type: String,
-              },
-              isDiabledItem: {
-                type: Boolean,
-                default: false,
-              },
-              itemDiscount: {
-                type: Number,
-              },
-            },
-          ],
+          type: Types.ObjectId,
+          ref: "Order",
         },
       ],
-    },
-  ],
-  ownerReviews: [
-    {
-      reviewByUser: {
-        type: Types.ObjectId,
-        ref: "User", 
-      },
-      reviewText: {
+      restaurantReview: [
+        {
+          type: Types.ObjectId,
+          ref: "Order",
+        },
+      ],
+      branchName: {
         type: String,
+        required: true,
       },
-      reviewRating: {
-        type: Number,
+      branchCode: {
+        type: String,
+        required: true,
       },
-      reviewDate: {
+      openingTime: {
         type: Date,
-        default: Date.now,
+        required: true,
+      },
+      closingTime: {
+        type: Date,
+        required: true,
+      },
+      isClosed: {
+        type: Boolean,
+        default: false,
+      },
+      menu: {
+        categories: [
+          {
+            categoryName: {
+              type: String,
+              required: true,
+            },
+            categoryImage: {
+              type: String,
+              required: true,
+            },
+            isDisabledCategory: {
+              type: Boolean,
+              default: false,
+            },
+            categoryDiscount: {
+              type: Number,
+            },
+            items: [
+              {
+                itemName: {
+                  type: String,
+                  required: true,
+                },
+                itemImage: {
+                  type: String,
+                  required: true,
+                },
+                itemPrice: {
+                  type: Number,
+                  required: true,
+                },
+                itemDesc: {
+                  type: String,
+                  required: true,
+                },
+                label: {
+                  type: String,
+                },
+                isDiabledItem: {
+                  type: Boolean,
+                  default: false,
+                },
+                itemDiscount: {
+                  type: Number,
+                },
+              },
+            ],
+          },
+        ],
       },
     },
   ],

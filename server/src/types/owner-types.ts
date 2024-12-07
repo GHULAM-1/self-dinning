@@ -22,6 +22,21 @@ export type Menu = {
   categories: Category[];
 };
 
+export type Restaurant = {
+  restaurantName: string;
+  restaurantImage: string;
+  restaurantAddress: string;
+  restaurantDetails: string;
+  restaurantOrders: Types.ObjectId[];
+  restaurantReview: RestaurantReview[];
+  branchName: string;
+  branchCode: string;
+  openingTime: Date;
+  closingTime: Date;
+  isClosed?: boolean;
+  menu: Menu;
+};
+
 export type Account = {
   accountName: string;
   accountNumber: number;
@@ -34,27 +49,18 @@ export type Subscription = {
   subscriptionEnds: Date;
 };
 
-export type OwnerReview = {
+export type RestaurantReview = {
   reviewByUser: Types.ObjectId;
   reviewText?: string;
   reviewRating?: number;
   reviewDate: Date;
-} 
+};
 
 export type ownerT = {
-  _id:Types.ObjectId
+  _id: Types.ObjectId;
   ownerName: string;
   ownerCnic: number;
-  businessImage: string;
-  businessName: string;
-  businessAddress: string;
-  businessNumber: string;
-  ownerOrders: Types.ObjectId[];
-  isClosed?: boolean;
-  openingTime: Date;
-  closingTime: Date;
   acounts: Account[];
   subscription: Subscription;
-  menus: Menu[];
-  ownerReviews: OwnerReview[];
+  restaurants: Restaurant[];
 };

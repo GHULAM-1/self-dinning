@@ -7,20 +7,12 @@ export const createOwner = async (req: Request, res: Response): Promise<void> =>
     const {
       ownerName,
       ownerCnic,
-      businessImage,
-      businessName,
-      businessAddress,
-      businessNumber,
-      ownerOrders,
-      openingTime,
-      closingTime,
       acounts,
       subscription,
-      menus,
-      ownerReviews,
+      restaurants,
     }: ownerT = req.body;
 
-    if (!ownerName || !ownerCnic || !businessImage || !businessName || !businessAddress || !businessNumber) {
+    if (!ownerName || !ownerCnic) {
       res.status(400).json({ error: "Required fields are missing" });
       return;
     }
@@ -28,17 +20,9 @@ export const createOwner = async (req: Request, res: Response): Promise<void> =>
     const newOwner = new Owner({
       ownerName,
       ownerCnic,
-      businessImage,
-      businessName,
-      businessAddress,
-      businessNumber,
-      ownerOrders,
-      openingTime,
-      closingTime,
       acounts,
       subscription,
-      menus,
-      ownerReviews,
+      restaurants,
     });
 
     const savedOwner = await newOwner.save();
@@ -108,10 +92,27 @@ export const getAllOwners = async (req: Request, res: Response): Promise<void> =
       if (!updatedOwner) {
         res.status(404).json({ error: "Owner not found" });
         return;
-      }
+      } 
   
       res.status(200).json(updatedOwner);
     } catch (error) {
       res.status(500).json({ error: "Error updating owner" });
+    }
+  };
+
+
+  export const getAllRestaurants = async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Fetch all owners and extract the restaurants array
+      const owners = await Owner.find();  // Populate the restaurants field
+      console.log("im here", owners);
+  
+      // Extract all restaurants from owners
+      const allRestaurants = owners.flatMap(owner => owner.restaurants);
+      console.log("all resturants: ", allRestaurants)
+  
+      res.status(200).json(allRestaurants);
+    } catch (error) {
+      res.status(500).json({ error: "Error fetching restaurants" });
     }
   };

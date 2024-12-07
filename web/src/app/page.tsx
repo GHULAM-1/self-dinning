@@ -10,48 +10,85 @@ import { ObjectId } from "mongodb"; // Import ObjectId
 type OwnerWithoutId = Omit<ownerT, "_id">;
 
 const fakePayload: OwnerWithoutId = {
-  ownerName: "waheed6969",
-  ownerCnic: 1234567890123,
-  businessImage: "https://via.placeholder.com/150",
-  businessName: "John's Cafe",
-  businessAddress: "123 Main Street, Cityville",
-  businessNumber: "555-1234",
-  ownerOrders: [],
-  openingTime: new Date(),
-  closingTime: new Date(),
+  ownerName: "Ahmed Khan",
+  ownerCnic: 3520123456789,
   acounts: [
     {
-      accountName: "John's Bank Account",
-      accountNumber: 12345678,
-      bankName: "City Bank",
+      accountName: "Business Account",
+      accountNumber: 1234567890,
+      bankName: "HBL Bank"
     },
+    {
+      accountName: "Personal Savings",
+      accountNumber: 9876543210,
+      bankName: "Meezan Bank"
+    }
   ],
   subscription: {
-    subscriptionPlan: "Premium",
-    subscriptionStarts: new Date(),
-    subscriptionEnds: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+    subscriptionPlan: "premium",
+    subscriptionStarts: new Date("2024-01-15"),
+    subscriptionEnds: new Date("2025-01-15")
   },
-  menus: [
+  restaurants: [
     {
-      categories: [
-        {
-          categoryName: "Beverages",
-          categoryImage: "https://via.placeholder.com/100",
-          isDisabledCategory: false,
-          items: [
-            {
-              itemName: "Coffee",
-              itemImage: "https://via.placeholder.com/50",
-              itemPrice: 5,
-              itemDesc: "Hot brewed coffee",
-            },
-          ],
-        },
-      ],
-    },
-  ],
-  ownerReviews: [],
+      restaurantName: "Spice Route",
+      restaurantImage: "/images/spice-route.jpg",
+      restaurantAddress: "123 Main Street, Lahore, Punjab",
+      restaurantDetails: "Traditional Pakistani cuisine with a modern twist",
+      restaurantOrders: [], // Assuming these would be ObjectIds from Order model
+      restaurantReview: [],
+      branchName: "Main Branch",
+      branchCode: "SR-LHR-001",
+      openingTime: new Date("2024-01-01T10:00:00"),
+      closingTime: new Date("2024-01-01T22:00:00"),
+      isClosed: false,
+      menu: {
+        categories: [
+          {
+            categoryName: "Appetizers",
+            categoryImage: "/images/appetizers.jpg",
+            isDisabledCategory: false,
+            categoryDiscount: 10,
+            items: [
+              {
+                itemName: "Samosa Chaat",
+                itemImage: "/images/samosa-chaat.jpg",
+                itemPrice: 250,
+                itemDesc: "Crispy samosas topped with yogurt, chutneys, and spices",
+                label: "Signature",
+                isDiabledItem: false,
+                itemDiscount: 5
+              },
+              {
+                itemName: "Chicken Tikka Bites",
+                itemImage: "/images/chicken-tikka-bites.jpg",
+                itemPrice: 300,
+                itemDesc: "Tender chicken pieces marinated in traditional spices",
+                label: "Chef's Special",
+                isDiabledItem: false
+              }
+            ]
+          },
+          {
+            categoryName: "Main Course",
+            categoryImage: "/images/main-course.jpg",
+            isDisabledCategory: false,
+            items: [
+              {
+                itemName: "Butter Chicken",
+                itemImage: "/images/butter-chicken.jpg",
+                itemPrice: 550,
+                itemDesc: "Classic creamy chicken curry served with naan",
+                isDiabledItem: false
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
 };
+
 
 const OwnersPage = () => {
   const queryClient = useQueryClient();
@@ -132,7 +169,7 @@ const OwnersPage = () => {
             <p>Owner Name: {owner.ownerName}</p>
             <p>Business Address: {owner.businessAddress}</p>
             <p>Business Number: {owner.businessNumber}</p>
-            <p>Subscription Plan: {owner.subscription.subscriptionPlan || "N/A"}</p>
+            {/* <p>Subscription Plan: {owner.subscription.subscriptionPlan || "N/A"}</p> */}
             <div className="flex gap-2 mt-2">
               <button
                 className="bg-blue-500 text-white p-2 rounded"
