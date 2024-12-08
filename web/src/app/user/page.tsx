@@ -1,5 +1,5 @@
 "use client";
-import { ownerT } from "@/types/owner-types";
+import { Category, ownerT, Restaurant } from "@/types/owner-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Types } from "mongoose";
@@ -19,72 +19,40 @@ export default function User() {
     setIsMounted(true);
   }, []);
 
-  const createOwner = useMutation({
-    mutationFn: (newOwner: OwnerWithoutId) => {
-      return axios.post("http://localhost:4000/owner", newOwner);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["owner"] });
-    },
-  });
 
-  const updateOwner = useMutation({
-    mutationFn: async ({
-      _id,
-      ownerName,
-    }: {
-      _id: Types.ObjectId;
-      ownerName: string;
-    }) => {
-      return axios.patch(`http://localhost:4000/owner/${_id}`, { ownerName });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["owner"] });
-      setIsPopupOpen(false); // Close the popup after success
-    },
-  });
 
-  const deleteOwner = useMutation({
-    mutationFn: async (_id: Types.ObjectId) => {
-      return axios.delete(`http://localhost:4000/owner/${_id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["owner"] }); // Revalidate data
-    },
-  });
 
-  const fetchOwners = async (): Promise<ownerT[]> => {
-    const response = await axios.get("http://localhost:4000/owner");
+  const fetchRestaurant = async (): Promise<Restaurant[]> => {
+    const response = await axios.get(`http://localhost:4000/owner/restaurants`);
     return response.data;
   };
 
-  const { isLoading, isError, error, data } = useQuery({
-    queryKey: ["owner"],
-    queryFn: fetchOwners,
+  const fetchCategories = async (): Promise<[]> => {
+    const response = await axios.get("http://localhost:4000/owner/cuisines");
+    return response.data;
+  }
+
+  const { isLoading: isRestaurantLoading, isError: isRestaurantError, error: restaurantError, data: restaurantData } = useQuery({
+    queryKey: ["restaurant"], // Unique query key for restaurants
+    queryFn: fetchRestaurant,
   });
 
-  const handleEditClick = (owner: ownerT) => {
-    setSelectedOwner(owner);
-    setUpdatedName(owner.ownerName);
-    setIsPopupOpen(true);
-  };
+  // Using useQuery for fetching categories
+  const { isLoading: isCategoriesLoading, isError: isCategoriesError, error: categoriesError, data: categoriesData } = useQuery({
+    queryKey: ["cuisines"], // Unique query key for cuisines
+    queryFn: fetchCategories,
+  });
 
-  const handleUpdateOwner = () => {
-    if (selectedOwner) {
-      updateOwner.mutate({ _id: selectedOwner._id, ownerName: updatedName });
-    }
-  };
 
-  const handleDeleteOwner = (ownerId: Types.ObjectId) => {
-    deleteOwner.mutate(ownerId);
-  };
 
-  if (isLoading) {
+// console.log("restaurant: ", data);
+
+  if (isRestaurantLoading || isCategoriesLoading) {
     return <span>Loading...</span>;
   }
 
-  if (isError) {
-    return <span>Error: {error.message}</span>;
+  if (isRestaurantError || isCategoriesError) {
+    return <span>Error:</span>;
   }
   if (!isMounted) {
     return null; // Prevent server-side rendering issues
@@ -93,10 +61,10 @@ export default function User() {
   return (
     <>
       <div className="flex overflow-x-auto ">
-        {data?.map((owner, index) => (
+        {restaurantData?.map((owner, index) => (
           <div className="mx-6 bg-slate-700" key={index}>
             <button onClick={() => router.push(`/menu/${owner._id}`)}>
-              {owner.businessName}
+              {owner.restaurantName}
             </button>
           </div>
         ))}

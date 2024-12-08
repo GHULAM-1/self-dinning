@@ -11,6 +11,7 @@ export type MenuItem = {
 };
 
 export type Category = {
+  _id?: Types.ObjectId;
   categoryName: string;
   categoryImage: string;
   isDisabledCategory?: boolean;
@@ -23,6 +24,7 @@ export type Menu = {
 };
 
 export type Restaurant = {
+  _id?: Types.ObjectId;
   restaurantName: string;
   restaurantImage: string;
   restaurantAddress: string;

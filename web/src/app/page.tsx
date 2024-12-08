@@ -2,15 +2,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useState } from "react";
-import { ownerT } from "../types/owner-types";
+import { Category, ownerT, Restaurant } from "../types/owner-types";
 import { Types } from "mongoose";
 
-import { ObjectId } from "mongodb"; // Import ObjectId
+import { ObjectId } from "mongodb"; // Import 
 
 type OwnerWithoutId = Omit<ownerT, "_id">;
 
 const fakePayload: OwnerWithoutId = {
-  ownerName: "Ahmed Khan",
+  ownerName: "Waheed",
   ownerCnic: 3520123456789,
   acounts: [
     {
@@ -31,7 +31,7 @@ const fakePayload: OwnerWithoutId = {
   },
   restaurants: [
     {
-      restaurantName: "Spice Route",
+      restaurantName: "Twice the spice",
       restaurantImage: "/images/spice-route.jpg",
       restaurantAddress: "123 Main Street, Lahore, Punjab",
       restaurantDetails: "Traditional Pakistani cuisine with a modern twist",
@@ -45,13 +45,13 @@ const fakePayload: OwnerWithoutId = {
       menu: {
         categories: [
           {
-            categoryName: "Appetizers",
+            categoryName: "Piazza",
             categoryImage: "/images/appetizers.jpg",
             isDisabledCategory: false,
             categoryDiscount: 10,
             items: [
               {
-                itemName: "Samosa Chaat",
+                itemName: "peri peri",
                 itemImage: "/images/samosa-chaat.jpg",
                 itemPrice: 250,
                 itemDesc: "Crispy samosas topped with yogurt, chutneys, and spices",
@@ -60,7 +60,7 @@ const fakePayload: OwnerWithoutId = {
                 itemDiscount: 5
               },
               {
-                itemName: "Chicken Tikka Bites",
+                itemName: "buffalo",
                 itemImage: "/images/chicken-tikka-bites.jpg",
                 itemPrice: 300,
                 itemDesc: "Tender chicken pieces marinated in traditional spices",
@@ -70,12 +70,19 @@ const fakePayload: OwnerWithoutId = {
             ]
           },
           {
-            categoryName: "Main Course",
+            categoryName: "burgers",
             categoryImage: "/images/main-course.jpg",
             isDisabledCategory: false,
             items: [
               {
-                itemName: "Butter Chicken",
+                itemName: "JB special",
+                itemImage: "/images/butter-chicken.jpg",
+                itemPrice: 550,
+                itemDesc: "Classic creamy chicken curry served with naan",
+                isDiabledItem: false
+              },
+              {
+                itemName: "Beef burger",
                 itemImage: "/images/butter-chicken.jpg",
                 itemPrice: 550,
                 itemDesc: "Classic creamy chicken curry served with naan",
