@@ -179,7 +179,7 @@ export const getAllOwners = async (req: Request, res: Response): Promise<void> =
         );
         
         if (cuisine) {
-          targetCuisine = {cuisine, restaurantName: restaurant.restaurantName, restaurantImage: restaurant.restaurantImage, restaurantDetails: restaurant.restaurantDetails};
+          targetCuisine = {cuisine, restaurantName: restaurant.restaurantName, restaurantImage: restaurant.restaurantImage, restaurantDetails: restaurant.restaurantDetails, id: restaurant._id};
         }
       });
       
