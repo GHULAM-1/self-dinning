@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 
 export type MenuItem = {
+  _id: Types.ObjectId;
   itemName: string;
   itemImage: string;
   itemPrice: number;
