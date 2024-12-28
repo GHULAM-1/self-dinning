@@ -1,10 +1,11 @@
 "use client";
+
 import { Category, ownerT, Restaurant } from "@/types/owner-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import { Types } from "mongoose";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import { Types } from "mongoose";
 
 export default function User() {
   const queryClient = useQueryClient();
@@ -35,57 +36,98 @@ export default function User() {
     error: restaurantError,
     data: restaurantData,
   } = useQuery({
-    queryKey: ["restaurant"], // Unique query key for restaurants
+    queryKey: ["restaurant"],
     queryFn: fetchRestaurant,
   });
 
-  // Using useQuery for fetching categories
   const {
     isLoading: isCategoriesLoading,
     isError: isCategoriesError,
     error: categoriesError,
     data: categoriesData,
   } = useQuery({
-    queryKey: ["cuisines"], // Unique query key for cuisines
+    queryKey: ["cuisines"],
     queryFn: fetchCategories,
   });
 
-  // console.log("restaurant: ", categoriesData);
-  console.log("loading: ", isCategoriesLoading, isRestaurantLoading)
+  console.log("loading: ", isCategoriesLoading, isRestaurantLoading);
 
   if (isRestaurantLoading || isCategoriesLoading) {
-    return <span>Loading...</span>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
   if (isRestaurantError || isCategoriesError) {
-    return <span>Error:</span>;
+    return (
+      <div className="flex items-center justify-center min-h-screen text-red-500">
+        An error occurred while loading the data
+      </div>
+    );
   }
+
   if (!isMounted) {
-    return null; // Prevent server-side rendering issues
+    return null;
   }
 
   return (
-    <>
-      {!(isCategoriesLoading && isRestaurantLoading) ? <div className="p-1">
-        <div className="flex overflow-x-auto mb-10">
-          {restaurantData?.map((owner, index) => (
-            <div className="mx-6 bg-slate-700" key={index}>
-              <button onClick={() => router.push(`/restaurant/${owner._id}`)}>
-                {owner.restaurantName}
-              </button>
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      {!(isCategoriesLoading && isRestaurantLoading) ? (
+        <div className="space-y-8">
+          <section>
+            <h2 className="text-2xl font-bold mb-4 text-white-800">Restaurants</h2>
+            <div className="flex overflow-x-auto pb-4 gap-4 scrollbar-hide">
+              {Array.isArray(restaurantData) && restaurantData.length > 0 ? (
+                restaurantData.map((owner, index) => (
+                  <button
+                    key={index}
+                    onClick={() => router.push(`/restaurant/${owner._id}`)}
+                    className="min-w-[200px] p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-gray-800 flex items-center justify-center"
+                  >
+                    {owner.restaurantName}
+                  </button>
+                ))
+              ) : (
+                <div className="text-gray-500">No restaurants found</div>
+              )}
             </div>
-          ))}
-        </div>
-        <div className="flex overflow-x-auto">
-          {categoriesData?.map((cat, index) => (
-            <div className="mx-6 bg-slate-700" key={index}>
-              <button onClick={() => router.push(`/cuisines/${cat._id}`)}>
-                {cat.categoryName}
-              </button>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-bold mb-4 text-white-800">Cuisines</h2>
+            <div className="flex overflow-x-auto pb-4 gap-4 scrollbar-hide">
+              {Array.isArray(categoriesData) && categoriesData.length > 0 ? (
+                categoriesData.map((cat, index) => (
+                  <button
+                    key={index}
+                    onClick={() => router.push(`/cuisines/${cat._id}`)}
+                    className="min-w-[200px] p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-gray-800 flex items-center justify-center"
+                  >
+                    {cat.categoryName}
+                  </button>
+                ))
+              ) : (
+                <div className="text-gray-500">No cuisines found</div>
+              )}
             </div>
-          ))}
+          </section>
+
+          <div className="mt-8">
+            <button
+              onClick={() => router.push(`/user/cart/674a6259039dd7c37215aca4`)}
+              className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors duration-200 flex items-center justify-center"
+            >
+              View Cart
+            </button>
+          </div>
         </div>
-      </div> : <div className="p-2">Loading...</div>}
-    </>
+      ) : (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      )}
+    </div>
   );
 }

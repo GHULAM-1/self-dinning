@@ -103,18 +103,15 @@ export const addItemToCart = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { userId } = req.params; // Assuming userId is provided in the URL
+  const { userId } = req.params;
   const { category, item, quantity, itemDiscount, restaurantId } = req.body;
-  // console.log(userId, category, item, quantity, itemDiscount, restaurantId)
 
   try {
     // Validate input fields
     if (!category || !item || !quantity || !restaurantId) {
-      res
-        .status(400)
-        .json({
-          error: "Category, item, quantity, and restaurantId are required",
-        });
+      res.status(400).json({
+        error: "Category, item, quantity, and restaurantId are required",
+      });
       return;
     }
 
@@ -124,19 +121,18 @@ export const addItemToCart = async (
       res.status(404).json({ error: "User not found" });
       return;
     }
-    // console.log("user: ", user);
+
     if (user.cart && user.cart.items.length > 0) {
       // If the cart contains items from a different restaurant, clear the cart
       const currentRestaurantId = user.cart.items[0].restaurantId;
-      if (currentRestaurantId.toString() !== restaurantId) {
-        console.log("formate::", currentRestaurantId.toString(), restaurantId)
-        user.cart.items = []; // Remove all items if from a different restaurant
+      if (currentRestaurantId.toString() !== restaurantId.toString()) {
+        user.cart.items = [];
         user.cart.totalItems = 0;
         user.cart.totalPrice = 0;
       }
     }
 
-    // Find restaurant by ID in the Owner collection (it's embedded)
+    // Find restaurant by ID in the Owner collection
     const owner = await ownerSchema.findOne({
       "restaurants._id": restaurantId,
     });
@@ -145,84 +141,184 @@ export const addItemToCart = async (
       return;
     }
 
-    // console.log("owner:::, ", owner);
-
-    // Find the specific restaurant from the restaurants array
+    // Find the specific restaurant
     const restaurant = owner.restaurants.find(
-      (r) => r._id.toString() === restaurantId
+      (r) => r._id.toString() === restaurantId.toString()
     );
     if (!restaurant) {
       res.status(404).json({ error: "Restaurant not found" });
       return;
     }
 
-    // console.log("restaurant ::, ", restaurant);
-
-    // Find the category details from the restaurant's menu
+    // Find the category details
     const categoryDetails = restaurant.menu.categories.find(
-      (c) => c._id.toString() === category
+      (c) => c._id.toString() === category.toString()
     );
     if (!categoryDetails) {
       res.status(404).json({ error: "Category not found" });
       return;
     }
-    // console.log("category::: ", categoryDetails);
-    // Find the item details from the category
+
+    // Find the item details
     const itemDetails = categoryDetails.items.find(
-      (i) => i._id.toString() === item
+      (i) => i._id.toString() === item.toString()
     );
     if (!itemDetails) {
       res.status(404).json({ error: "Item not found" });
       return;
     }
-    // console.log("item details:::, ", itemDetails);
 
-    // Create a new CartItem object
-    const newCartItem = {
-      restaurantId: restaurantId,
-      category,
-      item,
-      itemName: itemDetails.itemName,
-      itemImage: itemDetails.itemImage,
-      quantity,
-      itemPrice: itemDetails.itemPrice,
-      itemDiscount: itemDiscount || 0, // default to 0 if not provided
-    };
-
-    // Set the restaurant details to the user's cart
+    // Initialize cart if it doesn't exist
     if (!user.cart) {
-      console.log("im here:");
       user.cart = { items: [], totalItems: 0, totalPrice: 0 };
     }
 
-    // Add the new item to the user's cart
-    user.cart.items.push(newCartItem);
+    // Check if the item already exists in the cart
+    const existingItemIndex = user.cart.items.findIndex(
+      (cartItem) =>
+        cartItem.restaurantId.toString() === restaurantId.toString() &&
+        cartItem.category.toString() === category.toString() &&
+        cartItem.item.toString() === item.toString()
+    );
 
-    // console.log("im here 2:", newCartItem);
-    // Recalculate total items and total price in the cart
-    user.cart.totalItems = user.cart.items.length;
+    if (existingItemIndex !== -1) {
+      // Update existing item quantity
+      user.cart.items[existingItemIndex].quantity += quantity;
+    } else {
+      // Add new item to cart
+      const newCartItem = {
+        restaurantId,
+        category,
+        item,
+        itemName: itemDetails.itemName,
+        itemImage: itemDetails.itemImage,
+        quantity,
+        itemPrice: itemDetails.itemPrice,
+        itemDiscount: itemDiscount || 0,
+      };
+      user.cart.items.push(newCartItem);
+    }
+
+    // Recalculate cart totals
+    user.cart.totalItems = user.cart.items.reduce(
+      (total, item) => total + item.quantity,
+      0
+    );
     user.cart.totalPrice = user.cart.items.reduce(
       (total, item) =>
         total + item.itemPrice * item.quantity - (item.itemDiscount || 0),
       0
     );
-    // console.log("im here 3:::");
 
     // Save the updated user data
     try {
       const updatedUser = await user.save();
-      console.log("User saved successfully: ", updatedUser);
+      res.status(200).json(updatedUser.cart);
     } catch (error) {
-      console.error("Error saving user:", error); // Log the detailed error message
+      console.error("Error saving user:", error);
       res.status(500).json({ error: "Error saving user to the database" });
     }
-
-    const updatedUser = await user.save();
-    // console.log("im here 4:::");
-
-    // Return the updated user cart
-    res.status(200).json(updatedUser.cart);
   } catch (error) {
+    console.error("Error adding item to cart:", error);
     res.status(500).json({ error: "Error adding item to cart" });
+  }
+};
+
+export const removeItemFromCart = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { userId, resturantId, item, categoryId } = req.params;
+
+  try {
+    // Validate input fields
+    if (!categoryId || !item || !resturantId || !userId) {
+      res.status(400).json({
+        error: "UserId, restaurantId, item, and categoryId are required",
+      });
+      return;
+    }
+
+    // Find user by ID
+    const user = await userSchema.findById(userId);
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    // Check if cart exists and has items
+    if (!user.cart || user.cart.items.length === 0) {
+      res.status(400).json({ error: "Cart is empty" });
+      return;
+    }
+
+    // Find the item in the cart
+    const existingItemIndex = user.cart.items.findIndex(
+      (cartItem) =>
+        cartItem.restaurantId.toString() === resturantId.toString() &&
+        cartItem.category.toString() === categoryId.toString() &&
+        cartItem.item.toString() === item.toString()
+    );
+
+    if (existingItemIndex === -1) {
+      res.status(404).json({ error: "Item not found in cart" });
+      return;
+    }
+
+    // Get current item
+    const currentItem = user.cart.items[existingItemIndex];
+
+    if (currentItem.quantity > 1) {
+      // If quantity > 1, decrease quantity by 1
+      user.cart.items[existingItemIndex].quantity -= 1;
+    } else {
+      // If quantity is 1, remove the item completely
+      user.cart.items.splice(existingItemIndex, 1);
+    }
+
+    // Recalculate cart totals
+    user.cart.totalItems = user.cart.items.reduce(
+      (total, item) => total + item.quantity,
+      0
+    );
+    user.cart.totalPrice = user.cart.items.reduce(
+      (total, item) =>
+        total + item.itemPrice * item.quantity - (item.itemDiscount || 0),
+      0
+    );
+
+    // If cart is empty after removal, reset totals
+    if (user.cart.items.length === 0) {
+      user.cart.totalItems = 0;
+      user.cart.totalPrice = 0;
+    }
+
+    // Save the updated user data
+    try {
+      const updatedUser = await user.save();
+      res.status(200).json(updatedUser.cart);
+    } catch (error) {
+      console.error("Error saving user:", error);
+      res.status(500).json({ error: "Error saving user to the database" });
+    }
+  } catch (error) {
+    console.error("Error removing item from cart:", error);
+    res.status(500).json({ error: "Error removing item from cart" });
+  }
+};
+
+export const getCartItems = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await userSchema.findById(userId);
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    res.status(200).json(user.cart);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching cart items" });
   }
 };
